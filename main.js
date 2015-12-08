@@ -4,7 +4,7 @@ function handleReady($) {
 	var $canvasContainer = $('#maze')
 	var $solveButton = $('#solve')
 
-    // Couldn't get done within 3 hours
+    // Couldn't get this done within 3 hours
 	function solveMap() {
         // TODO
         alert('todo');
