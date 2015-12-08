@@ -1,49 +1,71 @@
 'use strict'
 
 function handleReady($) {
-    var $canvas = $('#maze')
-    var $solve = $('#solve')
+	var $canvasContainer = $('#maze')
+	var $solveButton = $('#solve')
 
-    function solveMap(){
+    // Couldn't get done within 3 hours
+	function solveMap() {
+        // TODO
+        alert('todo');
+	}
 
-    }
+	function generateMap(selecter, mazeArray, cellSize, start, end) {
 
-    function generateMap(selecter, mazeArray, cellSize){
-        function _fillRect(x, y, cellSize){
-            var ctx = selecter[0].getContext('2d')
-            ctx.fillStyle = 'black'
-        }
-
-        var y = mazeArray.length
+        // Doing canvas maniplation in memory vs DOM is much faster
+        var $canvas = document.createElement('canvas')
         var x = mazeArray[0].length
+		var y = mazeArray.length
+        var dimension = x * cellSize
 
-        console.log(x, y)
-        var index = cellSize * -1
-         while(index+= cellSize < x){
-            _fillRect(0, index, cellSize)
-        }
-    }
+        // Setting dimensions to fix blurry issue
+        $canvas.setAttribute('width', dimension)
+        $canvas.setAttribute('height', dimension)
 
-    function fetchData(url){
-        return $.get(url)
-    }
+        function _generateCell(selecter, x, y, cellSize, color) {
+			var ctx = selecter.getContext('2d')
+			ctx.fillStyle = color
+			ctx.fillRect(x, y, cellSize, cellSize)
+		}
 
-    fetchData('https://s3-us-west-1.amazonaws.com/circleup-challenge/maze.json')
-    .done(function handleResponse(response){
-        var mazeArray = response.maze
-        generateMap($canvas, mazeArray, 10)
+        // Loop through array and generate cells
+        mazeArray.forEach(function(row, rowIndex, rowArray){
+            row.forEach(function(value, index){
+                if(value === true){
+                    _generateCell($canvas, index * cellSize, rowIndex  * cellSize, cellSize, 'black')
+                } else {
+                    _generateCell($canvas, index * cellSize, rowIndex  * cellSize, cellSize, 'white')
+                }
+            })
+        })
+        _generateCell($canvas, start.x * cellSize, start.y  * cellSize, cellSize, 'green')
+        _generateCell($canvas, end.x * cellSize, end.y  * cellSize, cellSize, 'red')
 
-    })
-    .fail(function handleError(error){
-        throw new Error(error)
-    })
+        selecter.append($canvas)
+	}
+
+	function fetchData(url) {
+		return $.get(url)
+	}
+
+	fetchData('https://s3-us-west-1.amazonaws.com/circleup-challenge/maze.json')
+		.done(function handleResponse(response) {
+			var mazeArray = response.maze
+            var start = response.start
+            var end = response.end
+
+			generateMap($canvasContainer, mazeArray, 10, start, end)
+
+		})
+		.fail(function handleError(error) {
+			throw new Error(error)
+		})
 
 
-    $solve.on('click', function(event){
-        alert('event')
-    })
+	$solveButton.on('click', function(event) {
+		solveMap()
+	})
 
 }
-
 
 jQuery(document).ready(handleReady)
